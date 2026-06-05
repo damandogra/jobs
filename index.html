@@ -605,7 +605,7 @@ Respond ONLY with a valid JSON array. No markdown, no preamble. Each item:
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
+        max_tokens: 6000,
         system: systemPrompt,
         messages: [{ role: 'user', content: `Search query: "${query}"\n\nGenerate 8-12 matching jobs as JSON array.` }]
       })
