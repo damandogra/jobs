@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daman's Job Finder — Student Jobs NL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --bg2: #141417;
+    --bg3: #1c1c21;
+    --bg4: #242429;
+    --accent: #00e5a0;
+    --accent2: #00b87a;
+    --accent3: #7c3aed;
+    --text: #f0f0f2;
+    --text2: #9898a8;
+    --text3: #5a5a6e;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --red: #ff4d6d;
+    --amber: #fbbf24;
+    --green: #00e5a0;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* --- Layout --- */
+  .grain {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    opacity: 0.6;
+  }
+  .glow-orb {
+    position: fixed; width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+    top: -200px; right: -200px; pointer-events: none; z-index: 0;
+  }
+  .glow-orb2 {
+    position: fixed; width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 70%);
+    bottom: -100px; left: -100px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* --- Header --- */
+  header {
+    padding: 28px 0 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px; color: var(--accent); letter-spacing: 0.05em;
+  }
+  .logo span { color: var(--text3); }
+  .header-tag {
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    color: var(--text3); border: 1px solid var(--border2);
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* --- Hero --- */
+  .hero { padding: 56px 0 40px; }
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: block; width: 24px; height: 1px; background: var(--accent);
+  }
+  h1 {
+    font-size: clamp(32px, 5vw, 52px); font-weight: 300; line-height: 1.12;
+    letter-spacing: -0.02em; color: var(--text); margin-bottom: 8px;
+  }
+  h1 strong { font-weight: 600; color: var(--accent); }
+  .hero-sub {
+    font-size: 15px; color: var(--text2); margin-bottom: 36px; max-width: 560px;
+    line-height: 1.6;
+  }
+
+  /* --- Profile pill --- */
+  .profile-strip {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px;
+  }
+  .pill {
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    padding: 5px 12px; border-radius: 20px;
+    border: 1px solid rgba(0,229,160,0.25);
+    color: var(--accent2); background: rgba(0,229,160,0.06);
+    letter-spacing: 0.03em;
+  }
+  .pill.gray { border-color: var(--border2); color: var(--text3); background: transparent; }
+
+  /* --- Search bar --- */
+  .search-wrap {
+    display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .search-box {
+    flex: 1; min-width: 240px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 0 16px;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus-within { border-color: var(--accent); }
+  .search-box svg { color: var(--text3); flex-shrink: 0; }
+  .search-box input {
+    flex: 1; background: none; border: none; outline: none;
+    font-family: 'DM Sans', sans-serif; font-size: 15px;
+    color: var(--text); padding: 14px 0;
+  }
+  .search-box input::placeholder { color: var(--text3); }
+  .btn-search {
+    padding: 0 28px; height: 50px; background: var(--accent);
+    color: #000; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    font-weight: 600; border: none; border-radius: var(--radius);
+    cursor: pointer; transition: background 0.2s, transform 0.1s;
+    white-space: nowrap; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-search:hover { background: #00ffb2; }
+  .btn-search:active { transform: scale(0.98); }
+  .btn-search:disabled { background: var(--bg4); color: var(--text3); cursor: not-allowed; }
+  .search-hint { font-size: 12px; color: var(--text3); margin-bottom: 32px; }
+  .search-hint span { color: var(--text2); }
+
+  /* --- Filter row --- */
+  .filter-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;
+    padding-bottom: 24px; border-bottom: 1px solid var(--border);
+  }
+  .chip {
+    font-size: 12px; padding: 6px 14px; border-radius: 20px;
+    border: 1px solid var(--border2); color: var(--text2);
+    background: transparent; cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .chip.active, .chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.07); }
+
+  /* --- Tabs --- */
+  .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .tab {
+    font-size: 13px; font-weight: 500; padding: 10px 18px;
+    border-bottom: 2px solid transparent; cursor: pointer; color: var(--text3);
+    transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* --- Job cards --- */
+  .jobs-grid { display: flex; flex-direction: column; gap: 12px; }
+  .job-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 20px 22px;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .job-card:hover { border-color: var(--border2); background: var(--bg3); }
+  .job-card.expanded { border-color: rgba(0,229,160,0.3); }
+  .card-top {
+    display: flex; align-items: flex-start; gap: 16px; justify-content: space-between;
+  }
+  .card-main { flex: 1; min-width: 0; }
+  .card-org { font-size: 12px; color: var(--text3); font-family: 'Space Mono', monospace; margin-bottom: 5px; }
+  .card-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px; line-height: 1.3; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 11px; padding: 3px 9px; border-radius: 4px;
+    background: var(--bg4); color: var(--text2); font-family: 'Space Mono', monospace;
+  }
+  .tag.match { background: rgba(0,229,160,0.1); color: var(--accent); }
+  .card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+  .score-ring {
+    width: 52px; height: 52px; position: relative; flex-shrink: 0;
+  }
+  .score-ring svg { width: 52px; height: 52px; transform: rotate(-90deg); }
+  .score-ring .bg-ring { fill: none; stroke: var(--bg4); stroke-width: 4; }
+  .score-ring .fg-ring { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+  .score-ring .score-label {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; transform: none;
+  }
+  .heart-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg4); border: 1px solid var(--border2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; color: var(--text3);
+  }
+  .heart-btn:hover, .heart-btn.saved { background: rgba(255,77,109,0.15); border-color: rgba(255,77,109,0.4); color: var(--red); }
+  .card-meta { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .meta-item { font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 5px; }
+  .meta-item svg { flex-shrink: 0; }
+
+  /* --- Expanded detail --- */
+  .card-detail {
+    margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: none; animation: fadeIn 0.2s ease;
+  }
+  .job-card.expanded .card-detail { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .detail-desc { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 16px; }
+  .match-reasons { margin-bottom: 16px; }
+  .match-reasons h4 { font-size: 12px; font-family: 'Space Mono', monospace; color: var(--accent); margin-bottom: 8px; letter-spacing: 0.06em; }
+  .reason { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text2); margin-bottom: 6px; line-height: 1.4; }
+  .reason-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+  .detail-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-outline {
+    font-size: 13px; padding: 8px 18px; border-radius: var(--radius);
+    border: 1px solid var(--border2); color: var(--text2);
+    background: transparent; cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 7px;
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    font-size: 13px; padding: 8px 18px; border-radius: var(--radius);
+    border: none; color: #000; background: var(--accent);
+    cursor: pointer; transition: all 0.15s; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 7px;
+  }
+  .btn-primary:hover { background: #00ffb2; }
+
+  /* --- Cover letter modal --- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 100; display: flex; align-items: center; justify-content: center;
+    padding: 24px; backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: var(--radius-lg); width: 100%; max-width: 680px;
+    max-height: 80vh; display: flex; flex-direction: column;
+    transform: translateY(10px); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header {
+    padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-header h3 { font-size: 15px; font-weight: 600; }
+  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; padding: 4px; border-radius: 6px; }
+  .modal-close:hover { color: var(--text); background: var(--bg4); }
+  .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .modal-body textarea {
+    width: 100%; min-height: 320px; background: var(--bg3);
+    border: 1px solid var(--border2); border-radius: var(--radius);
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    line-height: 1.7; padding: 14px; resize: vertical; outline: none;
+  }
+  .modal-body textarea:focus { border-color: var(--accent); }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+  .generating-text { font-size: 13px; color: var(--text3); font-family: 'Space Mono', monospace; }
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+  /* --- Empty / Loading states --- */
+  .state-box {
+    text-align: center; padding: 64px 24px;
+    border: 1px dashed var(--border2); border-radius: var(--radius-lg);
+    color: var(--text3);
+  }
+  .state-box .state-icon { font-size: 40px; margin-bottom: 16px; }
+  .state-box h3 { font-size: 16px; color: var(--text2); margin-bottom: 8px; }
+  .state-box p { font-size: 14px; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+  .spinner {
+    width: 32px; height: 32px; border: 2px solid var(--border2);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.7s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* --- API key setup --- */
+  .api-setup {
+    background: var(--bg2); border: 1px solid rgba(0,229,160,0.2);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin-bottom: 28px;
+  }
+  .api-setup h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .api-setup p { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.6; }
+  .api-input-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .api-input-row input {
+    flex: 1; min-width: 200px; background: var(--bg3);
+    border: 1px solid var(--border2); border-radius: var(--radius);
+    color: var(--text); font-family: 'Space Mono', monospace; font-size: 13px;
+    padding: 10px 14px; outline: none;
+  }
+  .api-input-row input:focus { border-color: var(--accent); }
+  .notice {
+    font-size: 11px; color: var(--text3); margin-top: 10px;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+
+  /* --- Saved counter badge --- */
+  .tab-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    background: var(--red); color: #fff;
+    border-radius: 9px; font-size: 10px; font-weight: 700;
+    margin-left: 6px; vertical-align: middle; font-family: 'Space Mono', monospace;
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 600px) {
+    .card-top { flex-direction: column-reverse; }
+    .card-right { flex-direction: row; }
+    h1 { font-size: 28px; }
+  }
+
+  /* --- Footer --- */
+  footer { padding: 40px 0 32px; text-align: center; color: var(--text3); font-size: 12px; border-top: 1px solid var(--border); margin-top: 60px; }
+  footer a { color: var(--text3); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  /* --- Toast --- */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 12px 18px;
+    font-size: 13px; color: var(--text);
+    transform: translateY(80px); opacity: 0; transition: all 0.3s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* --- Password gate --- */
+  #pwGate {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .pw-box {
+    width: 100%; max-width: 380px;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: var(--radius-lg); padding: 36px 32px;
+    text-align: center;
+  }
+  .pw-logo { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--accent); margin-bottom: 8px; }
+  .pw-logo span { color: var(--text3); }
+  .pw-sub { font-size: 13px; color: var(--text3); margin-bottom: 28px; }
+  .pw-box input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--radius); color: var(--text);
+    font-family: 'Space Mono', monospace; font-size: 14px;
+    padding: 12px 16px; outline: none; margin-bottom: 12px;
+    letter-spacing: 0.08em; text-align: center;
+    transition: border-color 0.2s;
+  }
+  .pw-box input:focus { border-color: var(--accent); }
+  .pw-box input.error { border-color: var(--red); animation: shake 0.3s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .pw-btn {
+    width: 100%; padding: 12px; background: var(--accent);
+    color: #000; font-weight: 600; font-size: 14px;
+    border: none; border-radius: var(--radius); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: background 0.15s;
+  }
+  .pw-btn:hover { background: #00ffb2; }
+  .pw-hint { font-size: 11px; color: var(--text3); margin-top: 16px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<!-- Password gate — rendered before everything else -->
+<div id="pwGate">
+  <div class="pw-box">
+    <div class="pw-logo">dd<span>.jobs</span></div>
+    <p class="pw-sub">Private tool · Enter password to continue</p>
+    <input type="password" id="pwInput" placeholder="password" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')checkPw()" />
+    <button class="pw-btn" onclick="checkPw()">Unlock →</button>
+    <p class="pw-hint">This is a personal tool. Access is restricted.</p>
+  </div>
+</div>
+
+<div id="mainContent" style="display:none;">
+<div class="grain"></div>
+<div class="glow-orb"></div>
+<div class="glow-orb2"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">dd<span>.jobs</span></div>
+    <div class="header-tag">TU Delft · MSc Geomatics</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-eyebrow">Student job finder</div>
+    <h1>Find work that fits<br><strong>your exact profile</strong></h1>
+    <p class="hero-sub">AI-powered search ranked against your skills — Python, GIS, LiDAR, PostGIS, QGIS. English roles, ≤16hrs/week, Netherlands only.</p>
+
+    <div class="profile-strip">
+      <span class="pill">MSc Geomatics @ TU Delft</span>
+      <span class="pill">Python · C++ · PostGIS</span>
+      <span class="pill">LiDAR · Point Clouds</span>
+      <span class="pill">QGIS · Docker</span>
+      <span class="pill">TA experience</span>
+      <span class="pill gray">≤16 hrs/week</span>
+      <span class="pill gray">English only</span>
+      <span class="pill gray">Non-EU student</span>
+    </div>
+
+    <!-- API key setup -->
+    <div class="api-setup" id="apiSetup">
+      <h3>🔑 Enter your Anthropic API key to start</h3>
+      <p>Your key is stored locally in your browser only — never sent anywhere except directly to Anthropic. You already have €5 in credits, which is roughly 200–400 searches.</p>
+      <div class="api-input-row">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" />
+        <button class="btn-primary" onclick="saveApiKey()">Save key →</button>
+      </div>
+      <p class="notice">🔒 Stored in localStorage. Clear browser data to remove it. Anthropic API usage is billed at ~$0.003 per search.</p>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="e.g. student assistant, GIS analyst, RA in spatial data…" />
+      </div>
+      <button class="btn-search" id="searchBtn" onclick="doSearch()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
+        Search with AI
+      </button>
+    </div>
+    <p class="search-hint">Try: <span>"student assistant geomatics"</span> · <span>"GIS part-time delft"</span> · <span>"spatial data research"</span> · <span>"TA position TU Delft"</span></p>
+  </section>
+
+  <!-- Filter chips -->
+  <div class="filter-row" id="filterRow" style="display:none;">
+    <button class="chip active" onclick="filterJobs('all', this)">All</button>
+    <button class="chip" onclick="filterJobs('ta', this)">Student Assist / TA</button>
+    <button class="chip" onclick="filterJobs('research', this)">Research</button>
+    <button class="chip" onclick="filterJobs('tech', this)">Tech / GIS</button>
+    <button class="chip" onclick="filterJobs('remote', this)">Remote ok</button>
+    <button class="chip" onclick="filterJobs('delft', this)">Delft area</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabsRow" style="display:none;">
+    <button class="tab active" onclick="switchTab('results', this)">Results <span id="countBadge" style="color:var(--text3);font-size:12px;"></span></button>
+    <button class="tab" onclick="switchTab('saved', this)">Saved <span id="savedBadge" class="tab-badge" style="display:none;">0</span></button>
+  </div>
+
+  <!-- Results panel -->
+  <div id="resultsPanel">
+    <div class="state-box" id="emptyState">
+      <div class="state-icon">🗺️</div>
+      <h3>Ready to map your career</h3>
+      <p>Enter a search above. AI will find jobs across TU Delft, universities, GIS companies, and research institutes in the Netherlands, then rank them by how well they match your profile.</p>
+    </div>
+    <div class="jobs-grid" id="jobsGrid"></div>
+  </div>
+
+  <!-- Saved panel -->
+  <div id="savedPanel" style="display:none;">
+    <div class="jobs-grid" id="savedGrid"></div>
+    <div class="state-box" id="savedEmpty" style="display:none;">
+      <div class="state-icon">🤍</div>
+      <h3>No saved jobs yet</h3>
+      <p>Click the heart icon on any job to save it here.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    Built for <a href="https://damandogra.github.io/" target="_blank">Daman Dogra</a> · MSc Geomatics · TU Delft ·
+    <a href="https://console.anthropic.com/" target="_blank">Powered by Claude API</a>
+  </div>
+</footer>
+
+<!-- Cover letter modal -->
+<div class="modal-overlay" id="coverModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✉️ Cover letter / email draft</h3>
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="coverSpinner" style="text-align:center;padding:32px 0;">
+        <div class="spinner"></div>
+        <p class="generating-text">Generating<span class="blink">_</span></p>
+      </div>
+      <textarea id="coverText" style="display:none;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="copyLetter()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy
+      </button>
+      <button class="btn-outline" onclick="regenerateLetter()">Regenerate</button>
+      <button class="btn-primary" onclick="closeModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toastMsg"></span></div>
+
+<script>
+// ===================== PROFILE =====================
+const PROFILE = {
+  name: "Daman Dogra",
+  email: "damandograa@gmail.com",
+  program: "MSc Geomatics, TU Delft (2025–2027)",
+  skills: ["Python","C++","PostgreSQL","PostGIS","Docker","QGIS","LiDAR","Point Cloud Processing","GIS","Spatial Analysis","Photogrammetry","3D Reconstruction","Geo-web development","Database management","CIDOC-CRM","Heritage documentation"],
+  background: "B.Urban Planning (SPA Bhopal 2018-2022). Project Associate at IIT Roorkee (Apr 2023–Jul 2025): deployed Arches/CIDOC-CRM heritage platform, developed photogrammetry & LiDAR pipelines. TA at NPTEL (Aug-Sep 2023). Junior Urban Planner, PLADECO. Urban transport intern, Janaagraha. Published research on Water Transit-Oriented Development. 600-euro research grant.",
+  constraints: "Non-EU international student in Netherlands. Max 16 hrs/week. English-language positions only (no Dutch required). Open to: student assistant, TA, research assistant, GIS roles at companies. Based in Delft.",
+  portfolio: "https://damandogra.github.io/",
+  linkedin: "https://www.linkedin.com/in/daman-dogra/",
+  projects: ["Point Cloud Classification (LiDAR/KD-Tree/PCA)","Waste Detection in Built Environment (YOLO/Computer Vision)","Interactive Transit Accessibility Map of Delhi (Flask/Folium/GTFS)","WaTOD waterfront revitalization (GIS/Urban Planning)"]
+};
+
+// ===================== STATE =====================
+let apiKey = localStorage.getItem('dd_apikey') || '';
+let allJobs = [];
+let savedJobs = JSON.parse(localStorage.getItem('dd_saved') || '[]');
+let currentFilter = 'all';
+let currentTab = 'results';
+let coverLetterJob = null;
+
+if (apiKey) {
+  document.getElementById('apiSetup').style.display = 'none';
+  document.getElementById('apiKeyInput').value = apiKey;
+}
+
+// ===================== API KEY =====================
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key.startsWith('sk-ant')) { showToast('Key should start with sk-ant…'); return; }
+  apiKey = key;
+  localStorage.setItem('dd_apikey', key);
+  document.getElementById('apiSetup').style.display = 'none';
+  showToast('API key saved! Ready to search.');
+}
+
+// ===================== SEARCH =====================
+async function doSearch() {
+  if (!apiKey) { showToast('Please enter your Anthropic API key first.'); return; }
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) { showToast('Enter a search term!'); return; }
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;margin:0;border-width:2px;"></div> Searching…';
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('jobsGrid').innerHTML = `<div class="state-box"><div class="spinner"></div><h3>Claude is searching + ranking jobs…</h3><p>Finding real student positions in the Netherlands that match your profile, scoring each one, and writing match explanations.</p></div>`;
+  document.getElementById('filterRow').style.display = 'flex';
+  document.getElementById('tabsRow').style.display = 'flex';
+
+  const systemPrompt = `You are a job search assistant helping ${PROFILE.name}, an international student at TU Delft studying ${PROFILE.program}.
+
+PROFILE:
+Skills: ${PROFILE.skills.join(', ')}
+Background: ${PROFILE.background}
+Constraints: ${PROFILE.constraints}
+Projects: ${PROFILE.projects.join(' | ')}
+
+Your job: Generate 8–12 realistic, specific student job listings in the Netherlands that match this profile and the user's query. These should be based on REAL types of roles that exist at TU Delft, Delft municipality, Dutch universities, GIS companies (like ESRI NL, Geodan, Fugro, Geonovum, KNMI, Deltares, TNO, CGI NL, Kadaster, etc.), research institutes, and Dutch startups.
+
+Rules:
+- English language roles only (no Dutch required)
+- Max 16 hours/week
+- Real organisation names that exist in NL
+- Mix of: student assistants at TU Delft departments, RA positions, company internships/part-time
+- Include a realistic salary range in EUR/hr for each (NL student jobs: €12–€18/hr typically)
+
+Respond ONLY with a valid JSON array. No markdown, no preamble. Each item:
+{
+  "id": "unique string",
+  "title": "Job Title",
+  "org": "Organisation Name",
+  "location": "City, NL",
+  "hours": "X hrs/week",
+  "salary": "€X–€Y/hr",
+  "type": "ta|research|tech|remote",
+  "remote": true|false,
+  "tags": ["skill1","skill2"],
+  "matchTags": ["skill from profile that matches"],
+  "score": 0-100,
+  "scoreColor": "#hex based on score: green>80, amber 60-80, red<60",
+  "description": "2-3 sentences about the role",
+  "matchReasons": ["specific reason 1 why Daman fits","specific reason 2","specific reason 3"],
+  "applyUrl": "https://realistic-url-for-this-org.nl/jobs or careers page",
+  "posted": "X days ago"
+}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: `Search query: "${query}"\n\nGenerate 8-12 matching jobs as JSON array.` }]
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content.map(b => b.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    allJobs = JSON.parse(clean);
+    renderJobs(allJobs);
+    document.getElementById('countBadge').textContent = `(${allJobs.length})`;
+    showToast(`Found ${allJobs.length} jobs. Ranked by match score ↓`);
+  } catch (e) {
+    document.getElementById('jobsGrid').innerHTML = `<div class="state-box"><div class="state-icon">⚠️</div><h3>Search failed</h3><p>${e.message}. Check your API key and try again.</p></div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg> Search with AI';
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+// ===================== RENDER =====================
+function renderJobs(jobs) {
+  const grid = document.getElementById('jobsGrid');
+  if (!jobs.length) { grid.innerHTML = '<div class="state-box"><div class="state-icon">🔍</div><h3>No matches</h3><p>Try a different search term.</p></div>'; return; }
+  const sorted = [...jobs].sort((a,b) => b.score - a.score);
+  grid.innerHTML = sorted.map(j => jobCardHTML(j)).join('');
+  updateSavedBadge();
+}
+
+function jobCardHTML(j) {
+  const isSaved = savedJobs.some(s => s.id === j.id);
+  const circumference = 2 * Math.PI * 22;
+  const offset = circumference - (j.score / 100) * circumference;
+  const ringColor = j.score >= 80 ? '#00e5a0' : j.score >= 60 ? '#fbbf24' : '#ff4d6d';
+  return `
+  <div class="job-card" id="card-${j.id}" onclick="toggleCard('${j.id}')">
+    <div class="card-top">
+      <div class="card-main">
+        <div class="card-org">${j.org} · ${j.location}</div>
+        <div class="card-title">${j.title}</div>
+        <div class="card-tags">
+          ${j.matchTags.map(t => `<span class="tag match">${t}</span>`).join('')}
+          ${j.tags.filter(t => !j.matchTags.includes(t)).map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div class="card-right">
+        <div class="score-ring">
+          <svg viewBox="0 0 52 52">
+            <circle class="bg-ring" cx="26" cy="26" r="22"/>
+            <circle class="fg-ring" cx="26" cy="26" r="22"
+              stroke="${ringColor}"
+              stroke-dasharray="${circumference}"
+              stroke-dashoffset="${offset}"
+            />
+          </svg>
+          <div class="score-label" style="color:${ringColor}">${j.score}%</div>
+        </div>
+        <button class="heart-btn ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation();toggleSave('${j.id}')" title="${isSaved ? 'Remove from saved' : 'Save job'}">
+          <svg width="14" height="14" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="card-meta">
+      <span class="meta-item">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        ${j.hours}
+      </span>
+      <span class="meta-item">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        ${j.salary}
+      </span>
+      ${j.remote ? '<span class="meta-item" style="color:var(--accent)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Remote ok</span>' : ''}
+      <span class="meta-item">Posted ${j.posted}</span>
+    </div>
+    <div class="card-detail" id="detail-${j.id}">
+      <p class="detail-desc">${j.description}</p>
+      <div class="match-reasons">
+        <h4>Why you match</h4>
+        ${j.matchReasons.map(r => `<div class="reason"><div class="reason-dot"></div><span>${r}</span></div>`).join('')}
+      </div>
+      <div class="detail-actions">
+        <button class="btn-outline" onclick="event.stopPropagation();openCoverLetter('${j.id}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Draft cover letter
+        </button>
+        <a href="${j.applyUrl}" target="_blank" onclick="event.stopPropagation()">
+          <button class="btn-primary">
+            Apply now
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </button>
+        </a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  card.classList.toggle('expanded');
+}
+
+// ===================== FILTER =====================
+function filterJobs(type, el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = type;
+  const filtered = type === 'all' ? allJobs :
+    type === 'remote' ? allJobs.filter(j => j.remote) :
+    type === 'delft' ? allJobs.filter(j => j.location.toLowerCase().includes('delft')) :
+    allJobs.filter(j => j.type === type);
+  renderJobs(filtered);
+}
+
+// ===================== TABS =====================
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  document.getElementById('resultsPanel').style.display = tab === 'results' ? 'block' : 'none';
+  document.getElementById('savedPanel').style.display = tab === 'saved' ? 'block' : 'none';
+  if (tab === 'saved') renderSaved();
+}
+
+// ===================== SAVE =====================
+function toggleSave(id) {
+  const job = allJobs.find(j => j.id === id) || savedJobs.find(j => j.id === id);
+  if (!job) return;
+  const idx = savedJobs.findIndex(s => s.id === id);
+  if (idx >= 0) {
+    savedJobs.splice(idx, 1);
+    showToast('Removed from saved');
+  } else {
+    savedJobs.push(job);
+    showToast('Saved! ❤️');
+  }
+  localStorage.setItem('dd_saved', JSON.stringify(savedJobs));
+  // update heart in DOM
+  const btn = document.querySelector(`#card-${id} .heart-btn`);
+  if (btn) {
+    const saved = savedJobs.some(s => s.id === id);
+    btn.classList.toggle('saved', saved);
+    btn.querySelector('svg').setAttribute('fill', saved ? 'currentColor' : 'none');
+  }
+  updateSavedBadge();
+  if (currentTab === 'saved') renderSaved();
+}
+
+function renderSaved() {
+  const grid = document.getElementById('savedGrid');
+  const empty = document.getElementById('savedEmpty');
+  if (!savedJobs.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = savedJobs.map(j => jobCardHTML(j)).join('');
+}
+
+function updateSavedBadge() {
+  const badge = document.getElementById('savedBadge');
+  if (savedJobs.length) { badge.style.display = 'inline-flex'; badge.textContent = savedJobs.length; }
+  else badge.style.display = 'none';
+}
+
+updateSavedBadge();
+
+// ===================== COVER LETTER =====================
+async function openCoverLetter(id) {
+  coverLetterJob = allJobs.find(j => j.id === id) || savedJobs.find(j => j.id === id);
+  document.getElementById('coverModal').classList.add('open');
+  document.getElementById('coverSpinner').style.display = 'block';
+  document.getElementById('coverText').style.display = 'none';
+  await generateCoverLetter();
+}
+
+async function generateCoverLetter() {
+  const j = coverLetterJob;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        system: `You write concise, confident, tailored cover letters / emails for student job applications. No fluff. Professional but genuine. In English. Do NOT use placeholder brackets like [X] — fill in real details from the profile. Sign off as ${PROFILE.name}.`,
+        messages: [{
+          role: 'user',
+          content: `Write a cover letter / application email for this job:
+
+Job: ${j.title} at ${j.org}
+Description: ${j.description}
+Why I match: ${j.matchReasons.join('; ')}
+
+My profile:
+- ${PROFILE.program}
+- Skills: ${PROFILE.skills.join(', ')}
+- Background: ${PROFILE.background}
+- Portfolio: ${PROFILE.portfolio}
+- LinkedIn: ${PROFILE.linkedin}
+
+Keep it under 250 words. Subject line first, then the email. Specific, not generic.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content.map(b => b.text || '').join('');
+    document.getElementById('coverSpinner').style.display = 'none';
+    document.getElementById('coverText').style.display = 'block';
+    document.getElementById('coverText').value = text;
+  } catch (e) {
+    document.getElementById('coverText').style.display = 'block';
+    document.getElementById('coverText').value = `Error generating letter: ${e.message}`;
+    document.getElementById('coverSpinner').style.display = 'none';
+  }
+}
+
+async function regenerateLetter() {
+  document.getElementById('coverSpinner').style.display = 'block';
+  document.getElementById('coverText').style.display = 'none';
+  await generateCoverLetter();
+}
+
+function closeModal() { document.getElementById('coverModal').classList.remove('open'); }
+
+function copyLetter() {
+  navigator.clipboard.writeText(document.getElementById('coverText').value);
+  showToast('Copied to clipboard!');
+}
+
+document.getElementById('coverModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('coverModal')) closeModal();
+});
+
+// ===================== TOAST =====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</div><!-- /mainContent -->
+
+<script>
+// ===================== PASSWORD GATE =====================
+// SHA-256 of the password — the plaintext password is never stored here.
+// To change: node -e "const c=require('crypto');console.log(c.createHash('sha256').update('newpassword').digest('hex'))"
+const PW_HASH = 'aa743d9480c0f282f180c87abb4605cb17f34fce8751d103f2326932aa09daac';
+const SESSION_KEY = 'dd_auth';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPw() {
+  const input = document.getElementById('pwInput');
+  const val = input.value.trim();
+  if (!val) return;
+  const hash = await sha256(val);
+  if (hash === PW_HASH) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('pwGate').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  } else {
+    input.value = '';
+    input.classList.add('error');
+    input.placeholder = 'Wrong password…';
+    setTimeout(() => { input.classList.remove('error'); input.placeholder = 'password'; }, 1200);
+  }
+}
+
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  document.getElementById('pwGate').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+}
+
+document.getElementById('pwInput').focus();
+</script>
+</body>
+</html>
