@@ -585,27 +585,20 @@ After searching, return ONLY a JSON array of real jobs you actually found. Each 
   "tags": ["relevant","skills"],
   "matchTags": ["skills from my profile that match"],
   "score": 0-100,
-  "description": "What the role involves based on the real listing",
-  "matchReasons": ["reason 1 why I fit","reason 2","reason 3"],
-  "applyUrl": "REAL URL from the actual job listing — must work",
-  "posted": "date or X days ago if known"
-}
-
-RULES:
-- Only include jobs with real working URLs you found via search
-- Never invent or guess a URL
-- English roles only, max 16hrs/week
-- Return JSON array only, no markdown`;
+  "scoreColor": "#hex based on score: green>80, amber 60-80, red<60",
+  "description": "2-3 sentences about the role",
+  "matchReasons": ["specific reason 1 why Daman fits","specific reason 2","specific reason 3"],
+  "applyUrl": "https://realistic-url-for-this-org.nl/jobs or careers page",
+  "posted": "X days ago"
+}`;
 
   try {
-    const messages = [{ role: 'user', content: `Find real student jobs in Netherlands for query: "${query}". Search academictransfer.com, tudelft.nl/vacatures, and career pages of Deltares, Fugro, Kadaster, Geonovum, TNO, Geodan. Return only real listings with working apply URLs as a JSON array.` }];
-
-    const resp = await fetch('https://hidden-flower-a8ff.damandograa.workers.dev', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 8000,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
         system: systemPrompt,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages
@@ -790,7 +783,7 @@ async function openCoverLetter(id) {
 async function generateCoverLetter() {
   const j = coverLetterJob;
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://hidden-flower-a8ff.damandograa.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
