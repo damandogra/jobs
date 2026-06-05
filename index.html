@@ -562,63 +562,69 @@ async function doSearch() {
   document.getElementById('filterRow').style.display = 'flex';
   document.getElementById('tabsRow').style.display = 'flex';
 
-  const systemPrompt = `You are a job search assistant helping ${PROFILE.name}, an international student at TU Delft studying ${PROFILE.program}.
+  const systemPrompt = `You are a job search assistant for ${PROFILE.name}, MSc Geomatics student at TU Delft.
 
 PROFILE:
 Skills: ${PROFILE.skills.join(', ')}
 Background: ${PROFILE.background}
 Constraints: ${PROFILE.constraints}
-Projects: ${PROFILE.projects.join(' | ')}
 
-Your job: Generate 8–12 realistic, specific student job listings in the Netherlands that match this profile and the user's query. These should be based on REAL types of roles that exist at TU Delft, Delft municipality, Dutch universities, GIS companies (like ESRI NL, Geodan, Fugro, Geonovum, KNMI, Deltares, TNO, CGI NL, Kadaster, etc.), research institutes, and Dutch startups.
+You will use web_search to find REAL, LIVE student job listings in the Netherlands.
+Search Academic Transfer, TU Delft vacatures, LinkedIn, and company career pages.
 
-Rules:
-- English language roles only (no Dutch required)
-- Max 16 hours/week
-- Real organisation names that exist in NL
-- Mix of: student assistants at TU Delft departments, RA positions, company internships/part-time
-- Include a realistic salary range in EUR/hr for each (NL student jobs: €12–€18/hr typically)
-
-Respond ONLY with a valid JSON array. No markdown, no preamble. Each item:
+After searching, return ONLY a JSON array of real jobs you actually found. Each item:
 {
-  "id": "unique string",
-  "title": "Job Title",
-  "org": "Organisation Name",
+  "id": "unique-string",
+  "title": "Exact job title from listing",
+  "org": "Organisation name",
   "location": "City, NL",
-  "hours": "X hrs/week",
-  "salary": "€X–€Y/hr",
+  "hours": "X hrs/week (or estimate if not stated)",
+  "salary": "€X/hr or 'Not stated'",
   "type": "ta|research|tech|remote",
   "remote": true|false,
-  "tags": ["skill1","skill2"],
-  "matchTags": ["skill from profile that matches"],
+  "tags": ["relevant","skills"],
+  "matchTags": ["skills from my profile that match"],
   "score": 0-100,
-  "scoreColor": "#hex based on score: green>80, amber 60-80, red<60",
-  "description": "2-3 sentences about the role",
-  "matchReasons": ["specific reason 1 why Daman fits","specific reason 2","specific reason 3"],
-  "applyUrl": "https://realistic-url-for-this-org.nl/jobs or careers page",
-  "posted": "X days ago"
-}`;
+  "description": "What the role involves based on the real listing",
+  "matchReasons": ["reason 1 why I fit","reason 2","reason 3"],
+  "applyUrl": "REAL URL from the actual job listing — must work",
+  "posted": "date or X days ago if known"
+}
+
+RULES:
+- Only include jobs with real working URLs you found via search
+- Never invent or guess a URL
+- English roles only, max 16hrs/week
+- Return JSON array only, no markdown`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const messages = [{ role: 'user', content: `Find real student jobs in Netherlands for query: "${query}". Search academictransfer.com, tudelft.nl/vacatures, and career pages of Deltares, Fugro, Kadaster, Geonovum, TNO, Geodan. Return only real listings with working apply URLs as a JSON array.` }];
+
+    const resp = await fetch('https://hidden-flower-a8ff.damandograa.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 8000,
         system: systemPrompt,
-        messages: [{ role: 'user', content: `Search query: "${query}"\n\nGenerate 8-12 matching jobs as JSON array.` }]
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages
       })
     });
 
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
-    const raw = data.content.map(b => b.text || '').join('');
-    const clean = raw.replace(/```json|```/g, '').trim();
-    allJobs = JSON.parse(clean);
+
+    const textBlocks = data.content.filter(b => b.type === 'text');
+    if (!textBlocks.length) throw new Error('No results returned — try a different search');
+    const raw = textBlocks.map(b => b.text).join('');
+    const match = raw.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('Could not parse results — try again');
+    allJobs = JSON.parse(match[0]);
+    allJobs = allJobs.map((j, i) => ({ ...j, id: j.id || `job-${Date.now()}-${i}` }));
     renderJobs(allJobs);
     document.getElementById('countBadge').textContent = `(${allJobs.length})`;
-    showToast(`Found ${allJobs.length} jobs. Ranked by match score ↓`);
+    showToast(`Found ${allJobs.length} real jobs ↓`);
   } catch (e) {
     document.getElementById('jobsGrid').innerHTML = `<div class="state-box"><div class="state-icon">⚠️</div><h3>Search failed</h3><p>${e.message}. Check your API key and try again.</p></div>`;
   }
@@ -788,7 +794,7 @@ async function generateCoverLetter() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 800,
         system: `You write concise, confident, tailored cover letters / emails for student job applications. No fluff. Professional but genuine. In English. Do NOT use placeholder brackets like [X] — fill in real details from the profile. Sign off as ${PROFILE.name}.`,
         messages: [{
@@ -853,7 +859,7 @@ function showToast(msg) {
 // ===================== PASSWORD GATE =====================
 // SHA-256 of the password — the plaintext password is never stored here.
 // To change: node -e "const c=require('crypto');console.log(c.createHash('sha256').update('newpassword').digest('hex'))"
-const PW_HASH = '52c25a2de565bc64cf5af74a575b6e6f159671a5aaef7f74e5a956a2b2282d45';
+const PW_HASH = 'aa743d9480c0f282f180c87abb4605cb17f34fce8751d103f2326932aa09daac';
 const SESSION_KEY = 'dd_auth';
 
 async function sha256(str) {
